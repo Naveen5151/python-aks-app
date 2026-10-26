@@ -37,3 +37,16 @@ stages:
      # workingDirectory: '$(Build.SourcesDirectory)'  
       displayName: 'Install Dependencies'
 
+    - script: |
+        flake8 . --exclude=.git,__pycache__,venv,.venv,instance
+      displayName: 'Lint - Flake8'
+
+    - script: |
+        pytest --cov=. --cov-report=term --cov-report=xml:coverage.xml
+      displayName: 'Unit Tests and Code Coverage'
+
+    - task: PublishCodeCoverageResults@2
+      inputs:
+        summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
+      displayName: 'Publish Code Coverage'
+
