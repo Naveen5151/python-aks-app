@@ -20,7 +20,8 @@ stages:
 
     - script: |
         echo "##vso[task.setvariable variable=PIP_CACHE_DIR]$(pip cache dir)"
-        echo "pwd"
+        pwd
+        ls
       displayName: 'Set pip cache directory'
 
     - task: Cache@2
