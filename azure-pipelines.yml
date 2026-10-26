@@ -72,13 +72,14 @@ stages:
   - job:
     displayName: 'Build Image'
 
-  - task: Docker@01
-    displayName: 'Docker build'
-    inputs:
-    containerregistrytype: 'Container Registry'
-    dockerRegistryEndpoint: 'Docker connection'
-    command: 'Build an image'
-    dockerFile: 'Dockerfile'
-    imageName: 'flask-app:$(Build.BuildId)'
+    step:
+    - task: Docker@01
+      displayName: 'Docker build'
+      inputs:
+      containerregistrytype: 'Container Registry'
+      dockerRegistryEndpoint: 'Docker connection'
+      command: 'Build an image'
+      dockerFile: 'Dockerfile'
+      imageName: 'flask-app:$(Build.BuildId)'
 
 
