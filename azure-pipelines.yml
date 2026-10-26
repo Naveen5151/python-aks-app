@@ -41,7 +41,7 @@ stages:
     - script: |
         echo "File received by pipeline:"
         nl -ba models/user.py
-
+        git rev-parse HEAD
         echo "Running Flake8:"
         python -m flake8 models/user.py
       displayName: 'Check user.py'
