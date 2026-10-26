@@ -44,6 +44,28 @@ stages:
     - script: |
         echo "File received by pipeline:"
         nl -ba models/user.py
+
+        echo "*********"
+        echo "HEAD:"
+        git rev-parse HEAD
+
+        echo "Build SourceVersion:"
+        echo "$(Build.SourceVersion)"
+
+        echo "Build SourceBranch:"
+        echo "$(Build.SourceBranch)"
+
+        echo "Remote:"
+        git remote -v
+
+        echo "Latest commits:"
+        git log --oneline -5
+
+        echo "user.py:"
+        nl -ba models/user.py
+
+        echo "************"
+
         git rev-parse HEAD
         echo "Running Flake8:"
         python -m flake8 models/user.py
