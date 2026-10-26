@@ -83,6 +83,14 @@ stages:
         tags: |
           $(Build.BuildId)
     
+    # 2. Install Trivy
+    - script: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+          | sudo sh -s -- -b /usr/local/bin
+
+        trivy --version
+      displayName: 'Install Trivy'
+      
     - script: |
         trivy image --debug \
           --severity HIGH,CRITICAL \
