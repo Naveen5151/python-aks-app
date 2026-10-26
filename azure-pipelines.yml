@@ -73,13 +73,14 @@ stages:
     displayName: 'Build Image'
 
     steps:
-    - task: Docker@01
-      displayName: 'Docker build'
+    - task: Docker@2
+      displayName: 'Build and Push Docker Image'
       inputs:
-      containerregistrytype: 'Container Registry'
-      dockerRegistryEndpoint: 'Docker connection'
-      command: 'Build an image'
-      dockerFile: 'Dockerfile'
-      imageName: 'flask-app:$(Build.BuildId)'
+        containerRegistry: 'dockerhub-naveens51'
+        repository: 'naveens51/flask-app-aks'
+        command: 'buildAndPush'
+        Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(Build.BuildId)
 
 
