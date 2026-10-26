@@ -39,6 +39,14 @@ stages:
       displayName: 'Install Dependencies'
 
     - script: |
+        echo "File received by pipeline:"
+        nl -ba models/user.py
+
+        echo "Running Flake8:"
+        python -m flake8 models/user.py
+      displayName: 'Check user.py'
+
+    - script: |
         flake8 . --exclude=.git,__pycache__,venv,.venv,instance
       displayName: 'Lint - Flake8'
 
