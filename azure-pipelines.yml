@@ -76,7 +76,7 @@ stages:
     - task: Docker@2
       displayName: 'Build and Push Docker Image'
       inputs:
-        containerRegistry: 'dockerhub-naveens51'
+        containerRegistry: 'Docker connection'
         repository: 'naveens51/flask-app-aks'
         command: 'buildAndPush'
         Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
