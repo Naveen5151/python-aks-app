@@ -64,3 +64,21 @@ stages:
     #- script: |
      #   python -m bandit -r . -x ./tests,./instance
       #displayName: 'Security Scan - Bandit'
+
+- stage:
+  displayName: 'Docker Build'
+
+  jobs:
+  - job:
+    displayName: 'Build Image'
+
+  - task: Docker@01
+    displayName: 'Docker build'
+    inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryEndpoint: 'Docker connection'
+    command: 'Build an image'
+    dockerFile: 'Dockerfile'
+    imageName: 'flask-app:$(Build.BuildId)'
+
+
