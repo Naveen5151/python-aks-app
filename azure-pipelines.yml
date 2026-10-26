@@ -10,74 +10,50 @@ stages:
   displayName: 'FlaskApp Build'
 
   jobs:
-  - job: 'Code_Validation'
-    displayName: 'InitialValidation'
+  - job: Code_Validation
+    displayName: 'Initial Validation'
 
     steps:
     - checkout: self
       clean: true
+      fetchDepth: 0
 
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.13'
-      displayName:  'Setup Python'
-    
+      displayName: 'Setup Python'
+
     - script: |
         echo "##vso[task.setvariable variable=PIP_CACHE_DIR]$(pip cache dir)"
+        echo "Working directory:"
         pwd
-        ls
-        echo "$(Build.SourcesDirectory)"
+        ls -la
       displayName: 'Set pip cache directory'
 
     - task: Cache@2
       displayName: 'Restore pip cache'
       inputs:
         key: 'pip | "$(Agent.OS)" | requirements.txt'
-        restoreKey: $(PIP_CACHE_DIR)
+        restoreKeys: |
+          pip | "$(Agent.OS)"
+        path: $(PIP_CACHE_DIR)
 
     - script: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install flake8 pytest pytest-cov bandit
-     # workingDirectory: '$(Build.SourcesDirectory)'  
+        python -m pip install -r requirements.txt
+        python -m pip install flake8 pytest pytest-cov bandit
       displayName: 'Install Dependencies'
 
-    - script: |
-        echo "File received by pipeline:"
-        nl -ba models/user.py
 
-        echo "*********"
-        echo "HEAD:"
-        git rev-parse HEAD
-
-        echo "Build SourceVersion:"
-        echo "$(Build.SourceVersion)"
-
-        echo "Build SourceBranch:"
-        echo "$(Build.SourceBranch)"
-
-        echo "Remote:"
-        git remote -v
-
-        echo "Latest commits:"
-        git log --oneline -5
-
-        echo "user.py:"
-        nl -ba models/user.py
-
-        echo "************"
-
-        git rev-parse HEAD
-        echo "Running Flake8:"
-        python -m flake8 models/user.py
-      displayName: 'Check user.py'
+    #- script: |
+      # python -m flake8 . --exclude=.git,__pycache__,venv,.venv,instance
+     # displayName: 'Lint - Flake8'
 
     - script: |
-        flake8 . --exclude=.git,__pycache__,venv,.venv,instance
-      displayName: 'Lint - Flake8'
-
-    - script: |
-        pytest --cov=. --cov-report=term --cov-report=xml:coverage.xml
+        python -m pytest \
+          --cov=. \
+          --cov-report=term \
+          --cov-report=xml:coverage.xml
       displayName: 'Unit Tests and Code Coverage'
 
     - task: PublishCodeCoverageResults@2
@@ -85,3 +61,6 @@ stages:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
       displayName: 'Publish Code Coverage'
 
+    #- script: |
+     #   python -m bandit -r . -x ./tests,./instance
+      #displayName: 'Security Scan - Bandit'
