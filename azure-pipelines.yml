@@ -78,9 +78,24 @@ stages:
       inputs:
         containerRegistry: 'Docker connection'
         repository: 'naveens51/flask-app-aks'
-        command: 'buildAndPush'
+        command: 'build'
         Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(Build.BuildId)
+    
+    - script: |
+        trivy image --debug \
+          --severity HIGH,CRITICAL \
+          --exit-code 1 \
+          naveens51/flask-app-aks:$(Build.BuildId)
+      displayName: 'Trivy Security Scan'
 
+    # 3. Push only if Trivy succeeds
+    - task: Docker@2
+      displayName: 'Push Docker Image'
+      inputs:
+        containerRegistry: 'Docker connection'
+        repository: 'naveens51/flask-app-aks'
+        command: 'push'
+        tags: |
 
