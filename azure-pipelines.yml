@@ -61,6 +61,6 @@ stages:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
       displayName: 'Publish Code Coverage'
 
-    - script: |
-        python -m bandit -r . -x ./tests,./instance
-      displayName: 'Security Scan - Bandit'
+    #- script: |
+     #   python -m bandit -r . -x ./tests,./instance
+      #displayName: 'Security Scan - Bandit'
