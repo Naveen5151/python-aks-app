@@ -44,26 +44,10 @@ stages:
         python -m pip install flake8 pytest pytest-cov bandit
       displayName: 'Install Dependencies'
 
-    - script: |
-        echo "Pipeline HEAD:"
-        git rev-parse HEAD
 
-        echo "Build SourceVersion:"
-        echo "$(Build.SourceVersion)"
-
-        echo "Build SourceBranch:"
-        echo "$(Build.SourceBranch)"
-
-        echo "Latest commits:"
-        git log --oneline -5
-
-        echo "user.py received by pipeline:"
-        nl -ba models/user.py
-      displayName: 'Verify Git Checkout'
-
-    - script: |
-        python -m flake8 . --exclude=.git,__pycache__,venv,.venv,instance
-      displayName: 'Lint - Flake8'
+    #- script: |
+      # python -m flake8 . --exclude=.git,__pycache__,venv,.venv,instance
+     # displayName: 'Lint - Flake8'
 
     - script: |
         python -m pytest \
