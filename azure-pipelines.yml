@@ -40,7 +40,7 @@ stages:
 
     - script: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python -m pip install --upgrade -r requirements.txt
         python -m pip install flake8 pytest pytest-cov bandit
       displayName: 'Install Dependencies'
 
@@ -90,7 +90,7 @@ stages:
 
         trivy --version
       displayName: 'Install Trivy'
-      
+
     - script: |
         trivy image --debug \
           --severity HIGH,CRITICAL \

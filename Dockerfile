@@ -8,7 +8,7 @@ RUN apk update && apk upgrade --no-cache
 
 RUN python -m pip install --no-cache-dir --upgrade pip setuptools
 
-RUN python -m pip install --no-cache-dir --prefix=/install -r requirements.txt
+RUN python -m pip install --upgrade --no-cache-dir --prefix=/install -r requirements.txt
 
 
 FROM python:3.13-alpine 
