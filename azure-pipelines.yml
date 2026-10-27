@@ -98,6 +98,16 @@ stages:
       displayName: 'Install Trivy'
 
     - script: |
+        trivy image --image-src docker --scanners vuln \
+          --severity HIGH,CRITICAL --ignore-unfixed \
+          --format json -o trivy.json \
+          <dockerhub-username>/flask-app-aks:$(Build.BuildId) || true
+
+        echo "SCANNED: $(jq -r '.ArtifactName' trivy.json)"
+        jq -r '.Results[] | "TARGET: \(.Target) (\(.Type))", (.Vulnerabilities[]? | "   \(.PkgName) \(.InstalledVersion)  ->  \(.PkgPath // "-")")' trivy.json
+      displayName: 'Trivy - show where findings come from'
+
+    - script: |
         trivy image --debug \
           --severity HIGH,CRITICAL \
           --exit-code 1 \
