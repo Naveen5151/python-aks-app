@@ -117,11 +117,13 @@ stages:
       displayName: 'Trivy Image Scan'
       inputs:
         type: 'image'
-        target: '***/flask-app-aks:$(Build.BuildId)'
+        target: 'naveens51/flask-app-aks:$(Build.BuildId)'
         scanners: 'vuln'
         severities: 'HIGH,CRITICAL'
         failOnSeverityThreshold: 'HIGH'
-        
+        reports: 'html,junit'
+        publish: true
+
     # 3. Push only if Trivy succeeds
     - task: Docker@2
       displayName: 'Push Docker Image'
