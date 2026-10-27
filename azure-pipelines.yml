@@ -55,7 +55,7 @@ stages:
       displayName: 'Publish Code Coverage'
 
 - stage:
-  depend_on: 'Test'
+  dependsOn: 'Test'
   condition: succeeded()
   displayName: 'Docker Build'
 
