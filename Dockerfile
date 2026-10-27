@@ -6,7 +6,7 @@ COPY requirements.txt .
 
 RUN apk update && apk upgrade --no-cache
 
-RUN python -m pip install --no-cache-dir --upgrade pip setuptools
+#RUN python -m pip install --no-cache-dir --upgrade pip setuptools
 
 RUN python -m pip install --upgrade --no-cache-dir --prefix=/install -r requirements.txt
 
@@ -14,6 +14,8 @@ RUN python -m pip install --upgrade --no-cache-dir --prefix=/install -r requirem
 FROM python:3.13-alpine 
 
 WORKDIR /app
+
+RUN python -m pip install --upgrade --no-cache-dir --prefix=/install -r requirements.txt
 
 COPY --from=base /install /usr/local
 
