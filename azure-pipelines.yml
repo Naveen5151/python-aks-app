@@ -101,7 +101,7 @@ stages:
         trivy image --image-src docker --scanners vuln \
           --severity HIGH,CRITICAL --ignore-unfixed \
           --format json -o trivy.json \
-          naveens51/flask-app-aks/flask-app-aks:$(Build.BuildId) || true
+          naveens51/flask-app-aks:$(Build.BuildId) || true
 
         echo "SCANNED: $(jq -r '.ArtifactName' trivy.json)"
         jq -r '.Results[] | "TARGET: \(.Target) (\(.Type))", (.Vulnerabilities[]? | "   \(.PkgName) \(.InstalledVersion)  ->  \(.PkgPath // "-")")' trivy.json
