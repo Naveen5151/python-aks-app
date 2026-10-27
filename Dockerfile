@@ -1,27 +1,20 @@
 FROM python:3.13-alpine
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
+RUN apk upgrade --no-cache
+
 COPY requirements.txt .
+RUN python -m pip install --no-cache-dir --upgrade pip \
+ && python -m pip install --no-cache-dir -r requirements.txt
 
-# Update Alpine packages
-RUN apk update && \
-    apk upgrade --no-cache
+RUN addgroup -S user && adduser -S user -G user
 
-# Upgrade Python packaging tools
-RUN python -m pip install --no-cache-dir --upgrade pip setuptools
-
-# Install application dependencies directly into final image
-RUN python -m pip install --no-cache-dir --upgrade -r requirements.txt
-
-COPY . .
-
-RUN addgroup -S user && \
-    adduser -S user -G user && \
-    chown -R user:user /app
+COPY --chown=user:user . .
 
 USER user
-
 EXPOSE 5000
-
 CMD ["python", "app.py"]
