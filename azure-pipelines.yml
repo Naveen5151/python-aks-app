@@ -3,7 +3,7 @@ trigger:
 - develop
 
 pool:
-  vmImage: 'ubuntu 26'
+  vmImage: 'ubuntu-26.04'
 
 stages:
 - stage: 'Test'
