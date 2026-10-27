@@ -9,7 +9,7 @@ RUN apk upgrade --no-cache
 
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir --upgrade pip \
- && python -m pip install --no-cache-dir -r requirements.txt
+ && python -m pip install --no-cache-dir -r requirements.txt \
  && rm -f /usr/local/lib/python3.13/site-packages/pip/_vendor/bom.cdx.json
 
 RUN addgroup -S user && adduser -S user -G user
