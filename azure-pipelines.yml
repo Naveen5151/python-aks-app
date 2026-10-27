@@ -82,7 +82,13 @@ stages:
         Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(Build.BuildId)
+        arguments: '--pull --no-cache'
     
+    - script: |
+        docker images | grep myapp
+        docker run --rm <dockerhub-username>/myapp:$(Build.BuildId) pip list | grep -Ei "msgpack|urllib3|setuptools"
+      displayName: Verify image contents (temporary)
+      
     # 2. Install Trivy
     - script: |
         curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
