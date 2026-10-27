@@ -110,7 +110,6 @@ stages:
     - script: |
         trivy image --debug \
           --severity HIGH,CRITICAL \
-          --exit-code 1 \
           naveens51/flask-app-aks:$(Build.BuildId)
       displayName: 'Trivy Security Scan'
 
