@@ -40,7 +40,7 @@ stages:
 
     - script: |
         python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python -m pip install --upgrade -r requirements.txt
         python -m pip install flake8 pytest pytest-cov bandit
       displayName: 'Install Dependencies'
 
@@ -64,3 +64,62 @@ stages:
     #- script: |
      #   python -m bandit -r . -x ./tests,./instance
       #displayName: 'Security Scan - Bandit'
+
+- stage:
+  displayName: 'Docker Build'
+
+  jobs:
+  - job:
+    displayName: 'Build Image'
+
+    steps:
+    - task: Docker@2
+      displayName: 'Build and Push Docker Image'
+      inputs:
+        containerRegistry: 'Docker connection'
+        repository: 'naveens51/flask-app-aks'
+        command: 'build'
+        Dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+        arguments: '--pull --no-cache'
+    
+    - script: |
+        docker images | grep  flask-app-aks
+        docker run --rm naveens51/flask-app-aks:$(Build.BuildId) pip list | grep -Ei "msgpack|urllib3|setuptools"
+      displayName: Verify image contents (temporary)
+
+    # 2. Install Trivy
+    - script: |
+        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+          | sudo sh -s -- -b /usr/local/bin
+
+        trivy --version
+      displayName: 'Install Trivy'
+
+    - script: |
+        trivy image --image-src docker --scanners vuln \
+          --severity HIGH,CRITICAL --ignore-unfixed \
+          --format json -o trivy.json \
+          naveens51/flask-app-aks:$(Build.BuildId) || true
+
+        echo "SCANNED: $(jq -r '.ArtifactName' trivy.json)"
+        jq -r '.Results[] | "TARGET: \(.Target) (\(.Type))", (.Vulnerabilities[]? | "   \(.PkgName) \(.InstalledVersion)  ->  \(.PkgPath // "-")")' trivy.json
+      displayName: 'Trivy - show where findings come from'
+
+    - script: |
+        trivy image --debug \
+          --severity HIGH,CRITICAL \
+          naveens51/flask-app-aks:$(Build.BuildId)
+      displayName: 'Trivy Security Scan'
+
+    # 3. Push only if Trivy succeeds
+    - task: Docker@2
+      displayName: 'Push Docker Image'
+      inputs:
+        containerRegistry: 'Docker connection'
+        repository: 'naveens51/flask-app-aks'
+        command: 'push'
+        tags: |
+          $(Build.BuildId)
+

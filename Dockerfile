@@ -1,26 +1,21 @@
-FROM python:3.13-alpine as base
+FROM python:3.13-alpine
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
+
+RUN apk upgrade --no-cache
 
 COPY requirements.txt .
-
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
-
-
-FROM python:3.13-alpine 
-
-WORKDIR /app
-
-COPY --from=base /install /usr/local
-
-COPY . .
+RUN python -m pip install --no-cache-dir --upgrade pip \
+ && python -m pip install --no-cache-dir -r requirements.txt \
+ && rm -f /usr/local/lib/python3.13/site-packages/pip/_vendor/bom.cdx.json
 
 RUN addgroup -S user && adduser -S user -G user
 
-RUN chown -R user:user /app
+COPY --chown=user:user . .
 
 USER user
-
 EXPOSE 5000
-
 CMD ["python", "app.py"]
