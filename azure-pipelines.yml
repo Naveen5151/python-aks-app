@@ -121,4 +121,5 @@ stages:
         repository: 'naveens51/flask-app-aks'
         command: 'push'
         tags: |
+          $(Build.BuildId)
 
