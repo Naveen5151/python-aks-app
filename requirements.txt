@@ -19,6 +19,6 @@ pytest==9.1.1
 setuptools==84.2.1
 SQLAlchemy==2.1.6
 typing_extensions==4.16.0
-urllib3==2.7.0
+urllib3==2.8.0
 userpath==1.9.2
 Werkzeug==3.1.9
