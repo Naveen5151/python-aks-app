@@ -3,21 +3,17 @@ trigger:
 - develop
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-26.04'
 
 stages:
-- stage: Build
-  displayName: 'FlaskApp Build'
+- stage: 'Test'
+  displayName: 'FlaskApp Test'
 
   jobs:
   - job: Code_Validation
     displayName: 'Initial Validation'
 
     steps:
-    - checkout: self
-      clean: true
-      fetchDepth: 0
-
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.13'
@@ -25,9 +21,6 @@ stages:
 
     - script: |
         echo "##vso[task.setvariable variable=PIP_CACHE_DIR]$(pip cache dir)"
-        echo "Working directory:"
-        pwd
-        ls -la
       displayName: 'Set pip cache directory'
 
     - task: Cache@2
@@ -61,11 +54,9 @@ stages:
         summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage.xml'
       displayName: 'Publish Code Coverage'
 
-    #- script: |
-     #   python -m bandit -r . -x ./tests,./instance
-      #displayName: 'Security Scan - Bandit'
-
 - stage:
+  dependsOn: 'Test'
+  condition: succeeded()
   displayName: 'Docker Build'
 
   jobs:
@@ -84,34 +75,16 @@ stages:
           $(Build.BuildId)
         arguments: '--pull --no-cache'
     
-    - script: |
-        docker images | grep  flask-app-aks
-        docker run --rm naveens51/flask-app-aks:$(Build.BuildId) pip list | grep -Ei "msgpack|urllib3|setuptools"
-      displayName: Verify image contents (temporary)
-
-    # 2. Install Trivy
-    - script: |
-        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
-          | sudo sh -s -- -b /usr/local/bin
-
-        trivy --version
-      displayName: 'Install Trivy'
-
-    - script: |
-        trivy image --image-src docker --scanners vuln \
-          --severity HIGH,CRITICAL --ignore-unfixed \
-          --format json -o trivy.json \
-          naveens51/flask-app-aks:$(Build.BuildId) || true
-
-        echo "SCANNED: $(jq -r '.ArtifactName' trivy.json)"
-        jq -r '.Results[] | "TARGET: \(.Target) (\(.Type))", (.Vulnerabilities[]? | "   \(.PkgName) \(.InstalledVersion)  ->  \(.PkgPath // "-")")' trivy.json
-      displayName: 'Trivy - show where findings come from'
-
-    - script: |
-        trivy image --debug \
-          --severity HIGH,CRITICAL \
-          naveens51/flask-app-aks:$(Build.BuildId)
-      displayName: 'Trivy Security Scan'
+    - task: trivy@2
+      displayName: 'Trivy Image Scan'
+      inputs:
+        type: 'image'
+        target: 'naveens51/flask-app-aks:$(Build.BuildId)'
+        scanners: 'vuln'
+        severities: 'HIGH,CRITICAL'
+        failOnSeverityThreshold: 'HIGH'
+        reports: 'html,junit'
+        publish: true
 
     # 3. Push only if Trivy succeeds
     - task: Docker@2
