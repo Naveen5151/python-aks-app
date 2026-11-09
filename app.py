@@ -6,7 +6,13 @@ from routes.user_routes import user_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+@app.route("/")
+def home():
+    return "Flask app is running", 200
 
+@app.route("/healthz")
+def healthz():
+    return "ok", 200
 with app.app_context():
     db.create_all()
 
